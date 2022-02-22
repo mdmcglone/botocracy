@@ -1,30 +1,80 @@
 ---
-title: "rtweet_test"
+title: "gov52_rtweet_test"
 author: "me"
-date: "2/22/2022"
+date: "2/5/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rtweet)
+library(tweetbotornot)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r test1}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+rstats <- search_tweets("#rstats") 
+
+view(rstats)
+
+data <- tweetbotornot(rstats$user_id) 
+
+data[order(data$prob_bot), ]
+
+x <- rtweet::search_tweets("covid", n=18000, retryonratelimit = T, type = "mixed")
+
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r test2}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+users <- c("realdonaldtrump", "netflix_bot",
+  "kearneymw", "dataandme", "hadleywickham",
+  "ma_salmon", "juliasilge", "tidyversetweets", 
+  "American__Voter", "mothgenerator", "1127829883013361665")
+
+## get botornot estimates
+data <- tweetbotornot(users)
+
+## arrange by prob ests
+data[order(data$prob_bot), ]
+
+```
+```{r}
+#x <- rtweet::search_tweets("covid", n=18000, retryonratelimit = T, type = "mixed", lang = 'en')
+#view(x)
+
+x100<-head(x,100)
+
+view(x100)
+
+y <- tweetbotornot(x100$user_id) 
+  view(y)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+big_popular <- rtweet::search_tweets("covid", n=10000, retryonratelimit = T, type = "popular", lang = 'en')
+
+```
+
+```{r}
+view(tweetbotornot(big_popular))
+
+```
+
+-network wise scraping of tweets 
+  - trending 100, take ten tweets of ~40 followers
+   - 100 users -> 40,000 -> >1mil
+- subset tweets to coordinated/non-coordinated behaviour
+- model
+
++ dev token, filter to english,
+
+
