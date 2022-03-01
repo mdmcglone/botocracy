@@ -99,8 +99,7 @@ previous <- tibble(user_id = NULL)
 
 ```
 ```{r}
-token <- create_token(app = 'Em_McGlone_app',consumer_key = 'EiH0kAOh2B7yXJoc5YiqFLnUS', consumer_secret = 'eaF6UUjS9jkasukG1poDGs70AnZJZlDeue0qZvVLJrAve1sH9S', access_token = '1490055956667023368-G30H72MINeD2PFNU0jP9yXfCoSXBDV
-', access_secret ='A2DcCLt85MUP9jhxRitik2IYmwLbMJVUrFax9Gb8UwyzH',  set_renv = TRUE)
+token <- create_token()
 ```
 
 
