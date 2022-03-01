@@ -1,0 +1,126 @@
+---
+title: "basic_model"
+author: "me"
+date: "2/28/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(readr)
+library(tidyverse)
+library(stats)
+library(caret)
+library(class)
+library(gmodels)
+```
+
+```{r load data}
+tweets <- read.csv('C:/Users/mattm/Downloads/merged.csv')
+tweets$n_tweeted <- as.numeric(ave(tweets$text, tweets$text, FUN = length))
+tweets <- subset(tweets, n_tweeted > 2000 | n_tweeted < 2)
+tweets$coordination_dummy <- ifelse(tweets$n_tweeted > 2000, 1, 0)
+
+
+```
+
+```{r cleaning}
+col_order <- c('user_id.y','coordination_dummy', 'followers_count', "favourites_count", "serial_dummy", "followers_count",         "friends_count",           "listed_count",            "statuses_count",         
+ "favourites_count")            
+
+tweets_short <- tweets %>% filter(lang == 'en')
+tweets_short <- tweets_short[seq(1,1000,1), col_order]
+
+for (i in seq(1,length(tweets_short$user_id.y),1)) {
+  tweets_short$user_id.y[i] <- substr(tweets_short$user_id.y[i], 2, str_length(tweets_short$user_id.y[i]))
+}
+
+for (i in seq(1, ncol(tweets_short),1)){ 
+tweets_short[,i] <- as.numeric(tweets_short[,i])
+}
+
+validation_index <- sample(1:nrow(tweets_short), floor(.8*nrow(tweets_short)))
+validation <- tweets_short[-validation_index,]
+tweets_short <- tweets_short[validation_index,]
+
+str(tweets_short)
+```
+
+
+```{r test algorithms}
+# Run algorithms using 10-fold cross validation
+control <- trainControl(method="cv", number=10)
+metric <- "RMSE"
+```
+
+```{r}
+#linear algorithms
+set.seed(7)
+fit.lda <- train(coordination_dummy~., data=tweets_short, method="lda", metric=metric, trControl=control)
+```
+
+```{r}
+# CART
+set.seed(7)
+fit.cart <- train(coordination_dummy~., data=tweets_short, method="rpart", metric=metric, trControl=control)
+```
+
+```{r}
+# kNN
+set.seed(7)
+fit.knn <- train(coordination_dummy~., data=tweets_short, method="knn", metric=metric, trControl=control)
+```
+
+```{r}
+# SVM
+set.seed(7)
+fit.svm <- train(coordination_dummy~., data=tweets_short, method="svmRadial", metric=metric, trControl=control)
+```
+
+```{r}
+# Random Forest
+set.seed(7)
+fit.rf <- train(coordination_dummy~., data=tweets_short, method="rf", metric=metric, trControl=control)
+```
+
+```{r}
+#results <- resamples(list(knn=fit.knn))
+print(fit.knn)
+print(fit.svm)
+print(fit.cart)
+print(fit.rf)
+```
+
+
+```{r}
+tt_index <- sample(1:nrow(tweets_short), floor((2/3)*nrow(tweets_short)))
+tweets_train <- tweets_short[tt_index,]
+tweets_test <- tweets_short[-tt_index,]
+tweets_train_labs <- tweets_short[tt_index,2]
+tweets_test_labs <- tweets_short[-tt_index,2]
+
+view(tweets_train)
+view(tweets_test)
+view(tweets_train_labs)
+view(tweets_test_labs)
+```
+
+
+```{r}
+
+tweets_test_pred <- knn(train = tweets_train,test = tweets_test, cl = tweets_train_labs, k=5)
+```
+
+```{r}
+ ##create confusion matrix
+ tab <- table(tweets_test_pred,tweets_test_labs)
+ 
+ ##this function divides the correct predictions by total number of predictions that tell us how accurate teh model is.
+ 
+ accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+ accuracy(tab)
+ 
+```
+
+

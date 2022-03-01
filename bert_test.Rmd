@@ -83,28 +83,21 @@ dt_data = function(dir, rows_to_read){
 
 ```{r load_input_data}
 c(x_train,x_segment, y_train) %<-% 
-dt_data('C:/Users/mattm/OneDrive/Desktop/Gov52/machine_learning/train.csv',2000)
+dt_data('C:/Users/mattm/OneDrive/Desktop/Gov52/machine_learning/df2.csv',200)
 
-```
 
-```{r list_input_data}
 train = do.call(cbind,x_train) %>% t()
 segments = do.call(cbind,x_segment) %>% t()
 targets = do.call(cbind,y_train) %>% t()
 
 concat = c(list(train),list(segments))
 
-```
-
-```{r delay_warmup}
 c(decay_steps, warmup_steps) %<-% k_bert$calc_train_steps(
   targets %>% length(),
   batch_size=bch_size,
   epochs=epochs
 )
-```
 
-```{r setup_in_out_layers}
 input_1 = get_layer(model,name = 'Input-Token')$input
 input_2 = get_layer(model,name = 'Input-Segment')$input
 inputs = list(input_1,input_2)
@@ -116,11 +109,7 @@ outputs = dense %>% layer_dense(units=1L, activation='sigmoid',
                          name = 'output')
 
 model = keras_model(inputs = inputs,outputs = outputs)
-```
 
-
-
-```{r}
 model %>% compile(
   k_bert$AdamWarmup(decay_steps=decay_steps, 
                     warmup_steps=warmup_steps, learning_rate=learning_rate),
@@ -142,7 +131,15 @@ fit1 <- model %>% fit(
 ```{r}
 view(x_train)
 
-names(y_train) <- c('id','target','comment_text','severe_toxicity','obscene','identity_attack','insult','threat','asian','atheist','bisexual','black','buddhist','christian','female','heterosexual','hindu','homosexual_gay_or_lesbian','intellectual_or_learning_disability','jewish','latino','male','muslim','other_disability','other_gender','other_race_or_ethnicity','other_religion','other_sexual_orientation','physical_disability','psychiatric_or_mental_illness','transgender','white','created_date','publication_id','parent_id','article_id',"rating","funny","wow","sad","likes","disagree","sexual_explicit",  "identity_annotator_count","toxicity_annotator_count")
+names(y_train) <- c('user_id.y','coordination_dummy', 'text',  'prob_bot', 'is_retweet', 'followers_count', "favourites_count", "serial_dummy", 'created_at', "quoted_text",             "quoted_created_at",       "quoted_source",           "quoted_favorite_count",  
+ "quoted_retweet_count",    "quoted_user_id",          "quoted_screen_name",      "quoted_name",            
+"quoted_followers_count",  "quoted_friends_count",    "quoted_statuses_count",   "quoted_location",        
+ "quoted_description",      "quoted_verified",         "retweet_status_id",       "retweet_text",           
+"retweet_created_at",      "retweet_source",          "retweet_favorite_count",  "retweet_retweet_count",  
+ "retweet_user_id",         "retweet_screen_name",     "retweet_name",            "retweet_followers_count",
+"retweet_friends_count",   "retweet_statuses_count",  "retweet_location",        "retweet_description",
+ "followers_count",         "friends_count",           "listed_count",            "statuses_count",         
+ "favourites_count",       "account_created_at",      "verified",                "profile_url")
 
 view(y_train)
 
@@ -155,7 +152,7 @@ model %>% fit(
   targets,
   epochs = epochs,
   batch_size=bch_size, validation_split=0.2)
-
+ 
 
 ```
 

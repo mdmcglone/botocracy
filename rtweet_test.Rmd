@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(rtweet)
 library(tweetbotornot)
+
 ```
 
 
@@ -18,6 +19,9 @@ library(tweetbotornot)
 
 rstats <- search_tweets("#rstats") 
 
+
+```
+```{r}
 view(rstats)
 
 data <- tweetbotornot(rstats$user_id) 
@@ -59,15 +63,65 @@ y <- tweetbotornot(x100$user_id)
 ```
 
 
+
+
 ```{r}
-big_popular <- rtweet::search_tweets("covid", n=10000, retryonratelimit = T, type = "popular", lang = 'en')
+trends <- get_trends(woeid = 23424848)
+
+```
+
+
+```{r}
+
+users1 <- rtweet::search_tweets(q = '#NawabMalik', n = 100, lang = 'en', token = NULL)
+
+
 
 ```
 
 ```{r}
-view(tweetbotornot(big_popular))
+
+previous <- tibble(user_id = NULL) 
+   new <- get_friends(users1$user_id[1], n = 10, token = NULL)
+  users2 <- tibble(user_id = c(previous$user_id, new$user_id))
+   previous <- tibble(user_id = users2$user_id)
+   new <- get_friends(users1$user_id[2], n = 10, token = NULL)
+     users2 <- tibble(user_id = c(previous$user_id, new$user_id))
+        previous <- tibble(user_id = users2$user_id)
+        new <- get_friends(users1$user_id[3], n = 10, token = NULL)
+     users2 <- tibble(user_id = c(previous$user_id, new$user_id))
+        previous <- tibble(user_id = users2$user_id)
+
+
+
+#this works as intended
+
 
 ```
+```{r}
+token <- create_token(app = 'Em_McGlone_app',consumer_key = 'EiH0kAOh2B7yXJoc5YiqFLnUS', consumer_secret = 'eaF6UUjS9jkasukG1poDGs70AnZJZlDeue0qZvVLJrAve1sH9S', access_token = '1490055956667023368-G30H72MINeD2PFNU0jP9yXfCoSXBDV
+', access_secret ='A2DcCLt85MUP9jhxRitik2IYmwLbMJVUrFax9Gb8UwyzH',  set_renv = TRUE)
+```
+
+
+```{r}
+
+previous <- tibble(user_id = NULL)  
+
+ for (i in seq(1,nrow(users1),1)) {
+   new <- get_friends(users1$user_id[i], n = 1, retryonratelimit = TRUE)
+   users2 <- tibble(user_id = c(previous$user_id, new$user_id))
+   previous <- tibble(user_id = users2$user_id)
+ }
+#users2 <- tibble(user_id = c(users1$user_id, users2$user_id))
+view(users2)
+
+
+```
+
+
+
+
 
 -network wise scraping of tweets 
   - trending 100, take ten tweets of ~40 followers
